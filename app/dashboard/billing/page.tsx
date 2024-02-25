@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { CheckCircle2 } from "lucide-react";
+import prisma from "@/lib/db";
 
 const featureItems = [
   { name: "Lorem Ipsum" },
@@ -9,6 +10,9 @@ const featureItems = [
   { name: "Lorem Ipsum" },
   { name: "Lorem Ipsum" },
 ];
+
+
+
 
 export default function BillingPage() {
   return (
