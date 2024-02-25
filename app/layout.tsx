@@ -39,7 +39,7 @@ export default async function RootLayout({
   const data = await getData(user?.id as string);
   return (
     <html lang="en">
-      <body className={`${inter.className} ${data?.colorScheme} ?? theme-violet`}>
+      <body className={`${inter.className} ${data?.colorScheme} ?? "theme-violet"`}>
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
