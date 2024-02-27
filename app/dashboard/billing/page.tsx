@@ -2,6 +2,12 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { CheckCircle2 } from "lucide-react";
 import prisma from "@/lib/db";
+import {getKindeServerSession} from "@kinde-oss/kinde-auth-nextjs/server";
+import { getStripeSession } from "@/lib/stripe";
+
+import { StripeSubscriptionCreationButton } from "@/app/components/Submitbuttons";
+import { redirect } from "next/navigation";
+
 
 const featureItems = [
   { name: "Lorem Ipsum" },
@@ -12,9 +18,54 @@ const featureItems = [
 ];
 
 
+async function getData(userId: string){
+  const data = await prisma.subscription.findUnique({
+    where: {
+      userId: userId,
+    },
+    select: {
+      status: true,
+      user: {
+        select: {
+          stripeCustomerId: true,
+        },
+      },
+    },
+
+  })
+  return data;
+}
 
 
-export default function BillingPage() {
+
+export default async function BillingPage() {
+  const { getUser } = getKindeServerSession();
+  const user = await getUser();
+  const data = await getData(user?.id as string)
+
+  async function createSubscription(){
+    "use server"
+
+    const dbUser = await prisma.user.findUnique({
+      where: {
+        id: user?.id,
+      },  select: {
+        stripeCustomerId: true,
+      }
+
+    })
+    if(!dbUser?.stripeCustomerId){
+      throw new Error("Unable to get Customer ID");
+    }
+    
+    const subscriptionUrl = await getStripeSession({
+      customerId: dbUser.stripeCustomerId,
+      domainURL: 'https://localhost:3000',
+      priceId: process.env.STRIPE_PRICE_ID as string
+    });
+
+    return redirect(subscriptionUrl);
+  }
   return (
     <div className="max-w md mx-auto space-y-4">
       <Card className="flex flex-col">
@@ -43,8 +94,8 @@ export default function BillingPage() {
             ))}
             </ul>
 
-            <form className="w-full">
-                <Button className="w-full">Buy now</Button>
+            <form className="w-full" action={createSubscription}>
+               <StripeSubscriptionCreationButton />
             </form>
             
         </div>
