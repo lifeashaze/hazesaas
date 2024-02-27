@@ -4,6 +4,7 @@ import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
 import { redirect } from "next/navigation";
 import prisma from "@/lib/db";
 import { stripe } from "@/lib/stripe";
+import { unstable_noStore as noStore } from "next/cache";
 
 async function getData({
   email,
@@ -18,6 +19,7 @@ async function getData({
   lastName: string | undefined | null;
   profileImage: string | undefined | null;
 }) {
+  noStore();
   const user = await prisma.user.findUnique({
     where: {
       id: id,
@@ -29,7 +31,7 @@ async function getData({
   });
 
   if (!user) {
-    const name = `${firstName ?? " "} ${lastName ?? " "}`;
+    const name = `${firstName ?? ""} ${lastName ?? ""}`;
     await prisma.user.create({
       data: {
         id: id,
@@ -39,23 +41,21 @@ async function getData({
     });
   }
 
-  if(!user?.stripeCustomerId) {
+  if (!user?.stripeCustomerId) {
     const data = await stripe.customers.create({
       email: email,
-    })
+    });
 
     await prisma.user.update({
       where: {
         id: id,
       },
       data: {
-        stripeCustomerId: data.id
-      }
-    })
+        stripeCustomerId: data.id,
+      },
+    });
   }
 }
-
-
 
 export default async function DashboardLayout({
   children,
