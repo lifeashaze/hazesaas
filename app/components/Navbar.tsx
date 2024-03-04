@@ -22,7 +22,7 @@ export async function Navbar() {
                 email={user?.email as string}
                 image={user?.picture as string}/>
             ) : (
-                  <div className="flex items-center gap-x-5">
+                  <div className="flex items-center gap-x-5 theme-orange">
                   <LoginLink><Button>Sign in</Button></LoginLink>
                   <RegisterLink><Button variant={"secondary"}>Sign up</Button></RegisterLink>
               </div>
