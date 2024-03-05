@@ -24,8 +24,8 @@ export const getStripeSession = async ({
             address: 'auto',
             name: 'auto',
         },
-        success_url: `${domainURL}/payment/success`,
-        cancel_url: `${domainURL}/payment/cancelled`
+        success_url: `https://hazesaas.vercel.app/payment/success`,
+        cancel_url: `https://hazesaas.vercel.app//payment/cancelled`
     });
 
     return session.url as string;
